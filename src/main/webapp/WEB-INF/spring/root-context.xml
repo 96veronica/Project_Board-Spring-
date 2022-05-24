@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!-- 1. 히카리 CP 관련 -->
+	<!--
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig"> 
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property> 
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/Web_Board?serverTimezone=Asia/Seoul"></property> 
+        <property name="username" value="root"></property> 
+        <property name="password" value="rootroot"></property> 
+    </bean>
+    --> 
+    <!--버전에 따라 com.mysql.jdbc.Driver or com.mysql.cj.jdbc.Driver을 달리한다. 이것 때문에 쌩고생했음 -->
+ 
+ 
+ 	<!-- 3. log4jdbc.logj2 라이브러리 추가 후 1번 주석 처리, 새로 수정(기존의 jdbc 드라이버&url 정보는 주석 처리)  -->
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+ 		<!--<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/Web_Board?serverTimezone=Asia/Seoul"></property> -->
+		
+		<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+		<property name="jdbcUrl" value="jdbc:log4jdbc:mysql://localhost:3306/Web_Board?serverTimezone=Asia/Seoul"></property>
+		<property name="username" value="root"></property>
+		<property name="password" value="rootroot"></property>
+	</bean>	
+	   
+    <bean id="datasource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"> 
+        <constructor-arg ref="hikariConfig"></constructor-arg> 
+    </bean>    
+    
+    
+    <!-- 2. SQLSessionFactory 설정 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="datasource"></property>
+    </bean> 
+    
+    
+    <!-- 4. 패키지 생성하더라도 자동으로 spring이 인식 못하므로 별도 작업 필요 -->
+    <mybatis-spring:scan base-package="com.board.mapper"/>
+    <context:component-scan base-package="com.board.model"></context:component-scan>
+    <context:component-scan base-package="com.board.service"></context:component-scan>
+    
+	<!-- Root Context: defines shared resources visible to all other web components -->
+		
+</beans>
